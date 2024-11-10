@@ -8,7 +8,7 @@ export function Sidebar({ isMobile = false, onClose }) {
  const menuItems = [
     { icon: Home, label: 'Dashboard', href: '/user/dashboard' },
     { icon: Bell, label: 'Announcements', href: '/user/dashboard/announcements' },
-    { icon: UserPlus, label: 'Add a Guest', href: '/user/dashboard/add-guest' },
+    { icon: UserPlus, label: 'Guests', href: '/user/dashboard/guest' },
     { icon: Briefcase, label: 'Amenities', href: '/user/dashboard/amenities' },
     { icon: Users, label: 'User Info', href: '/user/dashboard/user-info' },
     { icon: MessageSquare, label: 'Complaints', href: '/user/dashboard/complaints' },

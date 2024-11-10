@@ -116,7 +116,7 @@ export default function UserDashboard() {
                       </div>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{announcement.description}</p>
                       <p className="text-xs text-gray-400">
-                        Posted on: {new Date(announcement.createdAt).toLocaleDateString()}
+                        {/* Posted on: {new Date(announcement.createdAt).toLocaleDateString()} */}
                       </p>
                       <Separator className="my-4" />
                     </div>
