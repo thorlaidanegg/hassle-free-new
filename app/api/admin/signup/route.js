@@ -12,9 +12,9 @@ export async function POST(req) {
       password,
       societyName,
       societyAddress,
-      societyPincode,
-      societyLatitude,
-      societyLongitude, // added longitude
+      pincode,
+      latitude,
+      longitude, // added longitude
     } = await req.json(); // Use `req.json()` to parse body in Next.js app router
 
     if (
@@ -23,9 +23,9 @@ export async function POST(req) {
       !password ||
       !societyName ||
       !societyAddress ||
-      !societyPincode ||
-      !societyLatitude ||
-      !societyLongitude
+      !pincode ||
+      !latitude ||
+      !longitude
     ) {
       return new Response(
         JSON.stringify({ message: "Please provide all the details" }),
@@ -42,10 +42,10 @@ export async function POST(req) {
       society: {
         name: societyName,
         address: societyAddress,
-        pincode: societyPincode,
+        pincode: pincode,
         location: {
-          latitude: societyLatitude,
-          longitude: societyLongitude,
+          latitude: latitude,
+          longitude: longitude,
         },
       },
     });
