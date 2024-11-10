@@ -5,8 +5,6 @@ const Schema = mongoose.Schema;
 const announcementSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
-  validUntil: { type: Date, required: true },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'Admin', required: true },
   priority: { 
     type: String, 
     enum: ['low', 'medium', 'high', 'urgent'],
