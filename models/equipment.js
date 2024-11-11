@@ -31,12 +31,6 @@ const equipmentSchema = new Schema({
     enum: ['available', 'low_stock', 'out_of_stock', 'maintenance'],
     default: 'available'
   },
-  maintenanceSchedule: [{
-    lastMaintenance: { type: Date },
-    nextMaintenance: { type: Date },
-    maintenanceType: { type: String },
-    notes: { type: String }
-  }],
   isChargeable: { type: Boolean, default: false },
   charges: {
     hourly: { type: Number },

@@ -49,6 +49,7 @@ const amenitySchema = new Schema({
     date: { type: Date },
     description: { type: String },
     duration: { type: Number } // in hours
+    
   }],
   pricing: {
     isChargeable: { type: Boolean, default: false },

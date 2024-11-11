@@ -23,7 +23,9 @@ export default function LandingPage() {
             <Link href="#testimonials" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-foreground">Testimonials</Link>
             <Link href="#pricing" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-foreground">Pricing</Link>
           </nav>
-          <Button>Get Started</Button>
+          <Link href="/user/login" >
+            <Button>Get Started</Button>
+          </Link>
         </div>
       </header>
 

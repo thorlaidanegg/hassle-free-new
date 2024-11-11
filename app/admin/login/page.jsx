@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
       const { accessToken } = response.data
 
       // Store access token in cookies
-      Cookies.set('UserAccessToken', accessToken, { expires: 7, secure: true })
+      Cookies.set('AdminAccessToken', accessToken, { expires: 7, secure: true })
 
       // Redirect to dashboard
       router.push('/dashboard')

@@ -25,10 +25,10 @@ export default function LoginPage() {
       const { accessToken } = response.data
 
       // Store access token in cookies
-      Cookies.set('AdminAccessToken', accessToken, { expires: 7, secure: true })
+      Cookies.set('UserAccessToken', accessToken, { expires: 7, secure: true })
 
       // Redirect to dashboard
-      router.push('/dashboard')
+      router.push('/user/dashboard')
     } catch (error) {
       console.error(error)
       alert(error.response?.data?.message || 'Login failed')

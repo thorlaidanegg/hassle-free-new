@@ -1,28 +1,21 @@
-'use client'
+"use client"
 
 import { useState } from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import Link from 'next/link'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
-import { CalendarIcon, Clock, Users } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Clock, MapPin, Users } from "lucide-react"
 
-// Mock data for amenities
+// Mock data for amenities (replace with actual data in production)
 const amenities = [
   {
     id: 1,
     name: "Swimming Pool",
     type: "swimming_pool",
     description: "Olympic-sized swimming pool with separate kids area",
-    photos: [
-      { url: "https://example.com/pool1.jpg", caption: "Main pool area" },
-      { url: "https://example.com/pool2.jpg", caption: "Kids pool" }
-    ],
+    photos: [{ url: "https://example.com/pool1.jpg", caption: "Main pool area" }],
     capacity: 50,
     status: "operational",
     location: "Ground Floor, Building A"
@@ -32,10 +25,7 @@ const amenities = [
     name: "Gym",
     type: "gym",
     description: "Fully equipped gym with cardio and strength training areas",
-    photos: [
-      { url: "https://example.com/gym1.jpg", caption: "Cardio area" },
-      { url: "https://example.com/gym2.jpg", caption: "Weight training area" }
-    ],
+    photos: [{ url: "https://example.com/gym1.jpg", caption: "Cardio area" }],
     capacity: 30,
     status: "operational",
     location: "2nd Floor, Building B"
@@ -44,107 +34,67 @@ const amenities = [
 ]
 
 export default function AmenitiesPage() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [searchTerm, setSearchTerm] = useState("")
+
+  const filteredAmenities = amenities.filter(amenity =>
+    amenity.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
-    <div className="container mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Amenities</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {amenities.map((amenity) => (
-              <AmenityCard
-                key={amenity.id}
-                amenity={amenity}
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-              />
-            ))}
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-8">Amenities</h1>
+      <div className="mb-6">
+        <Input
+          type="text"
+          placeholder="Search amenities..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="max-w-md"
+        />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredAmenities.map((amenity) => (
+          <AmenityCard key={amenity.id} amenity={amenity} />
+        ))}
+      </div>
     </div>
-  );
+  )
 }
 
-function AmenityCard({ amenity, selectedDate, setSelectedDate }) {
+function AmenityCard({ amenity }) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden flex flex-col">
       <CardHeader className="p-0">
         <img
-          src={amenity.photos[0].url}
-          alt={amenity.photos[0].caption}
+          src={amenity.photos[0]?.url || "/placeholder.svg?height=200&width=400"}
+          alt={amenity.photos[0]?.caption || amenity.name}
           className="w-full h-48 object-cover"
         />
       </CardHeader>
-      <CardContent className="p-4">
-        <CardTitle>{amenity.name}</CardTitle>
-        <CardDescription>{amenity.description}</CardDescription>
-        <div className="mt-2 flex items-center text-sm text-gray-500">
-          <Users className="mr-1 h-4 w-4" />
-          Capacity: {amenity.capacity}
-        </div>
-        <div className="mt-1 flex items-center text-sm text-gray-500">
-          <Clock className="mr-1 h-4 w-4" />
-          Status: {amenity.status}
+      <CardContent className="p-4 flex-grow">
+        <CardTitle className="flex items-center justify-between">
+          {amenity.name}
+          <Badge variant={amenity.status === 'operational' ? 'default' : 'destructive'}>
+            {amenity.status}
+          </Badge>
+        </CardTitle>
+        <p className="text-sm text-gray-500 mt-2">{amenity.description}</p>
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center text-sm text-gray-500">
+            <Users className="mr-2 h-4 w-4" />
+            Capacity: {amenity.capacity}
+          </div>
+          <div className="flex items-center text-sm text-gray-500">
+            <MapPin className="mr-2 h-4 w-4" />
+            {amenity.location}
+          </div>
         </div>
       </CardContent>
-      <CardFooter>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-full">Book Now</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Book {amenity.name}</DialogTitle>
-              <DialogDescription>
-                Make a reservation for the {amenity.name}. Please fill in the details below.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">
-                  Date
-                </Label>
-                <div className="col-span-3">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    className="rounded-md border"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="time" className="text-right">
-                  Time
-                </Label>
-                <Select>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select time" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="09:00">09:00 AM</SelectItem>
-                    <SelectItem value="10:00">10:00 AM</SelectItem>
-                    <SelectItem value="11:00">11:00 AM</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="guests" className="text-right">
-                  Guests
-                </Label>
-                <Input
-                  id="guests"
-                  type="number"
-                  min="1"
-                  max={amenity.capacity}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Confirm Booking</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+      <CardFooter className="p-4">
+        <Link href={`/amenities/${amenity.id}`} passHref>
+          <Button className="w-full">View Details</Button>
+        </Link>
       </CardFooter>
     </Card>
-  );
+  )
 }
