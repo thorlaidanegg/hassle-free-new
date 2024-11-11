@@ -51,7 +51,7 @@ export default function UserDashboard() {
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle>Welcome back, John!</CardTitle>
-                <CardDescription>Here's what's happening in your community</CardDescription>
+                <CardDescription>Here&apos;s what&apos;s happening in your community</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

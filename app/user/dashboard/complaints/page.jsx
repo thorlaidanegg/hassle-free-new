@@ -40,14 +40,14 @@ export default function ComplaintsPage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Complaints</h1>
         <Dialog>
-          <DialogTrigger asChild>
+          <DialogTrigger asChild>   
             <Button>File New Complaint</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>File a New Complaint</DialogTitle>
               <DialogDescription>
-                Please provide details about your complaint. We'll address it as soon as possible.
+                Please provide details about your complaint. We&apos;ll address it as soon as possible.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
