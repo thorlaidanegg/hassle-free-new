@@ -1,42 +1,42 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Clock, MapPin, Users } from "lucide-react"
+import axios from 'axios'
 
-// Mock data for amenities (replace with actual data in production)
-const amenities = [
-  {
-    id: 1,
-    name: "Swimming Pool",
-    type: "swimming_pool",
-    description: "Olympic-sized swimming pool with separate kids area",
-    photos: [{ url: "https://example.com/pool1.jpg", caption: "Main pool area" }],
-    capacity: 50,
-    status: "operational",
-    location: "Ground Floor, Building A"
-  },
-  {
-    id: 2,
-    name: "Gym",
-    type: "gym",
-    description: "Fully equipped gym with cardio and strength training areas",
-    photos: [{ url: "https://example.com/gym1.jpg", caption: "Cardio area" }],
-    capacity: 30,
-    status: "operational",
-    location: "2nd Floor, Building B"
-  },
-  // Add more mock amenities as needed
-]
 
 export default function AmenitiesPage() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [amenities , setAmenities] = useState()
 
-  const filteredAmenities = amenities.filter(amenity =>
+
+  const fetchAmenities = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities`,
+      {
+        headers: {
+          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+        }
+      })
+      setAmenities(res.data)
+      console.log(res.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchAmenities();
+  },[])
+
+
+  const filteredAmenities = amenities?.filter(amenity =>
     amenity.name.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
@@ -53,7 +53,7 @@ export default function AmenitiesPage() {
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAmenities.map((amenity) => (
+        {filteredAmenities?.map((amenity) => (
           <AmenityCard key={amenity.id} amenity={amenity} />
         ))}
       </div>
@@ -91,7 +91,7 @@ function AmenityCard({ amenity }) {
         </div>
       </CardContent>
       <CardFooter className="p-4">
-        <Link href={`/amenities/${amenity.id}`} passHref>
+        <Link href={`/user/dashboard/amenities/${amenity._id}`} passHref>
           <Button className="w-full">View Details</Button>
         </Link>
       </CardFooter>

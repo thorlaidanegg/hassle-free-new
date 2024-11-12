@@ -1,42 +1,69 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
-// Mock user data - replace with actual data in production
-const initialUser= {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  age: 30,
-  houseNo: "42",
-  flatNo: "B",
-  photo: {
-    url: "https://i.pravatar.cc/300",
-    isVerified: true
-  },
-  noOfCars: 2,
-  carNumbers: ["ABC123", "XYZ789"]
-}
+import { useToast } from "@/hooks/use-toast"
+import axios from "axios"
+import Cookies from "js-cookie"
 
 export default function UserEditForm() {
-  const [user, setUser] = useState(initialUser)
+  const [user, setUser] = useState(null)
+  const [originalUser, setOriginalUser] = useState(null)
+  const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
-    const newCarNumbers = [...user.carNumbers]
-    if (newCarNumbers.length < user.noOfCars) {
-      while (newCarNumbers.length < user.noOfCars) {
-        newCarNumbers.push("")
+    getUserData()
+  }, [])
+
+  useEffect(() => {
+    if (user && user.carNumbers) {
+      const newCarNumbers = [...user.carNumbers]
+      if (newCarNumbers.length < user.noOfCars) {
+        while (newCarNumbers.length < user.noOfCars) {
+          newCarNumbers.push("")
+        }
+      } else if (newCarNumbers.length > user.noOfCars) {
+        newCarNumbers.splice(user.noOfCars)
       }
-    } else if (newCarNumbers.length > user.noOfCars) {
-      newCarNumbers.splice(user.noOfCars)
+      setUser(prev => ({ ...prev, carNumbers: newCarNumbers }))
     }
-    setUser(prev => ({ ...prev, carNumbers: newCarNumbers }))
-  }, [user.noOfCars])
+  }, [user?.noOfCars])
+
+  const getUserData = async () => {
+    try {
+      const token = Cookies.get('UserAccessToken') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQwMjc0NywiZXhwIjoxNzMyMDA3NTQ3fQ.trpvlasgRBvHOLJm2uhiwcNmLKThSva4OlH7ABU3_LM";
+      if (!token) {
+        throw new Error("Unauthorized: No token found");
+      }
+
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status !== 200) {
+        throw new Error(res.statusText);
+      }
+
+      setUser(res.data);
+      setOriginalUser(res.data);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error.response?.data?.error || error.message);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user data. Please try again.",
+        variant: "destructive",
+      })
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -56,10 +83,55 @@ export default function UserEditForm() {
     setUser(prev => ({ ...prev, carNumbers: updatedCarNumbers }))
   }
 
+  const getChangedData = () => {
+    const changedData = {}
+    Object.keys(user).forEach(key => {
+      if (JSON.stringify(user[key]) !== JSON.stringify(originalUser[key])) {
+        changedData[key] = user[key]
+      }
+    })
+    return changedData
+  }
+
+  const updateUser = async (changedData) => {
+    try {
+      const res = await axios.put(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, changedData, {
+        headers: {
+          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQwMjc0NywiZXhwIjoxNzMyMDA3NTQ3fQ.trpvlasgRBvHOLJm2uhiwcNmLKThSva4OlH7ABU3_LM`
+        }
+      })
+      console.log(res.data)
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated.",
+      })
+      router.push("/user/dashboard/user-info")
+    } catch (err) {
+      console.error(err)
+      toast({
+        title: "Update Failed",
+        description: "There was an error updating your profile. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Handle form submission here (e.g., API call to update user data)
-    console.log("Updated user data:", user)
+    const changedData = getChangedData()
+    if (Object.keys(changedData).length > 0) {
+      updateUser(changedData)
+    } else {
+      toast({
+        title: "No Changes",
+        description: "No changes were made to your profile.",
+      })
+    }
+  }
+
+  if (!user) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -71,14 +143,14 @@ export default function UserEditForm() {
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="w-32 h-32">
-              <AvatarImage src={user.photo.url} alt={user.name} />
-              <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+              <AvatarImage src={user.photo?.url} alt={user.name} />
+              <AvatarFallback>{user.name?.split(" ").map(n => n[0]).join("")}</AvatarFallback>
             </Avatar>
             <div className="space-y-2 w-full">
               <Label htmlFor="photoUrl">Photo URL</Label>
               <Input
                 id="photoUrl"
-                value={user.photo.url}
+                value={user.photo?.url || ""}
                 onChange={handlePhotoChange}
               />
             </div>
@@ -89,11 +161,11 @@ export default function UserEditForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" value={user.name} onChange={handleChange} required />
+              <Input id="name" name="name" value={user.name || ""} onChange={handleChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" value={user.email} onChange={handleChange} required />
+              <Input id="email" name="email" type="email" value={user.email || ""} onChange={handleChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="age">Age</Label>
@@ -109,11 +181,11 @@ export default function UserEditForm() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="houseNo">House Number</Label>
-              <Input id="houseNo" name="houseNo" value={user.houseNo} onChange={handleChange} required />
+              <Input id="houseNo" name="houseNo" value={user.houseNo || ""} onChange={handleChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="flatNo">Flat Number</Label>
-              <Input id="flatNo" name="flatNo" value={user.flatNo} onChange={handleChange} required />
+              <Input id="flatNo" name="flatNo" value={user.flatNo || ""} onChange={handleChange} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="noOfCars">Number of Cars</Label>
@@ -121,7 +193,7 @@ export default function UserEditForm() {
                 id="noOfCars"
                 name="noOfCars"
                 type="number"
-                value={user.noOfCars}
+                value={user.noOfCars || 0}
                 onChange={handleChange}
                 min="0"
                 required
@@ -134,7 +206,7 @@ export default function UserEditForm() {
           <div>
             <Label>Car Numbers</Label>
             <div className="space-y-2 mt-2">
-              {user.carNumbers.map((carNumber, index) => (
+              {user.carNumbers?.map((carNumber, index) => (
                 <Input
                   key={index}
                   value={carNumber}

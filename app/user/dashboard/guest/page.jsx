@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PlusCircle, QrCode } from "lucide-react"
 import { format } from "date-fns"
 import { Button } from "@/components/ui/button"
@@ -16,50 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useRouter } from "next/navigation"
-
-// Mock data for demonstration
-const mockGuests = [
-  {
-    guestId: "G001",
-    name: "John Doe",
-    noOfPeople: 2,
-    date: new Date("2023-06-15"),
-    status: "pending",
-    carNo: "ABC123",
-    purpose: "Meeting",
-    validUntil: new Date("2023-06-16"),
-  },
-  {
-    guestId: "G002",
-    name: "Jane Smith",
-    noOfPeople: 1,
-    date: new Date("2023-06-16"),
-    status: "approved",
-    carNo: "XYZ789",
-    purpose: "Interview",
-    validUntil: new Date("2023-06-17"),
-  },
-  {
-    guestId: "G003",
-    name: "Alice Johnson",
-    noOfPeople: 3,
-    date: new Date("2023-06-17"),
-    status: "checked-in",
-    carNo: "DEF456",
-    purpose: "Conference",
-    validUntil: new Date("2023-06-18"),
-  },
-  {
-    guestId: "G004",
-    name: "Bob Williams",
-    noOfPeople: 2,
-    date: new Date("2023-06-18"),
-    status: "checked-out",
-    carNo: "GHI789",
-    purpose: "Tour",
-    validUntil: new Date("2023-06-19"),
-  },
-]
+import axios from "axios"
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -69,8 +26,32 @@ const statusColors = {
 }
 
 export default function GuestList() {
-  const [guests, setGuests] = useState(mockGuests)
+  const [guests, setGuests] = useState()
+  const [loading ,setLoading] = useState(true)
   const router = useRouter()
+
+
+  const fetchGuests = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/guests`,
+        {
+          headers: {
+            // 'Authorization': `Bearer ${Cookies.get('UserAccessToken')}`
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+          }
+        }
+      );
+      console.log(response.data)
+      setGuests(response.data.guests)
+      setLoading(false)
+    } catch (error) {
+      console.error('Error fetching guests:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuests();
+  }, []);
 
   const addNewGuest = () => {
     router.push('/user/dashboard/guest/add-guest')
@@ -79,6 +60,11 @@ export default function GuestList() {
   const generateQRCode = (guestId) => {
     // Implement QR code generation
     console.log(`Generate QR code for guest ${guestId}`)
+  }
+
+
+  if(loading){
+    return <div>Loading...</div>
   }
 
   return (
@@ -136,7 +122,7 @@ export default function GuestList() {
                           <TableCell>{format(guest.validUntil, "PP")}</TableCell>
                           <TableCell>
                             <Button
-                              variant="outline"
+                              variant="secondary"
                               size="sm"
                               onClick={() => generateQRCode(guest.guestId)}
                             >

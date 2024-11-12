@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { format } from 'date-fns'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -12,62 +12,94 @@ import { Calendar } from "@/components/ui/calendar"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Clock, MapPin, Users, DollarSign, Star } from "lucide-react"
-
-// Mock data for a single amenity (replace with actual data fetching in production)
-const amenity = {
-  id: 1,
-  name: "Swimming Pool",
-  type: "swimming_pool",
-  description: "Olympic-sized swimming pool with separate kids area",
-  photos: [
-    { url: "https://example.com/pool1.jpg", caption: "Main pool area" },
-    { url: "https://example.com/pool2.jpg", caption: "Kids pool" }
-  ],
-  capacity: 50,
-  timings: [
-    { day: "monday", openTime: "06:00", closeTime: "22:00", maintenanceTime: "14:00-15:00" },
-    { day: "tuesday", openTime: "06:00", closeTime: "22:00" },
-    { day: "wednesday", openTime: "06:00", closeTime: "22:00" },
-    { day: "thursday", openTime: "06:00", closeTime: "22:00" },
-    { day: "friday", openTime: "06:00", closeTime: "22:00" },
-    { day: "saturday", openTime: "08:00", closeTime: "20:00" },
-    { day: "sunday", openTime: "08:00", closeTime: "20:00" }
-  ],
-  rules: [
-    "No running around the pool area",
-    "Children under 12 must be accompanied by an adult",
-    "No food or drinks allowed in the pool",
-    "Shower before entering the pool",
-    "No diving in shallow areas"
-  ],
-  status: "operational",
-  maintenanceSchedule: [
-    { date: new Date("2023-07-15"), description: "Annual maintenance", duration: 8 }
-  ],
-  pricing: {
-    isChargeable: true,
-    hourlyRate: 5,
-    monthlyRate: 50,
-    yearlyRate: 500
-  },
-  location: "Ground Floor, Building A",
-  amenityManager: "John Doe"
-}
-
-// Mock ratings data
-const ratings = [
-  { id: 1, userId: "user1", rating: 4, review: "Great facility! The pool is always clean and well-maintained.", createdAt: new Date("2023-06-01") },
-  { id: 2, userId: "user2", rating: 5, review: "Excellent service and clean environment. The staff is very helpful.", createdAt: new Date("2023-06-15") },
-  { id: 3, userId: "user3", rating: 3, review: "Good pool, but it can get crowded during peak hours.", createdAt: new Date("2023-06-22") }
-]
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import axios from 'axios'
+import Cookies from 'js-cookie'
 
 export default function AmenityDetails() {
+  const [amenity, setAmenity] = useState(null)
+  const [reviews, setReviews] = useState([])
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [startTime, setStartTime] = useState({ hour: "09", minute: "00", period: "AM" })
   const [endTime, setEndTime] = useState({ hour: "10", minute: "00", period: "AM" })
   const [guests, setGuests] = useState(1)
+  const [newReview, setNewReview] = useState({
+    rating: 0,
+    cleanliness: 0,
+    maintenance: 0,
+    staff: 0,
+    equipment: 0,
+    review: "",
+    photos: []
+  })
 
-  const router = useRouter()
+  const pathname = usePathname()
+  const id = pathname.split("/")[4]
+
+  const getAmenityById = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/${id}`, {
+        headers: {
+          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+        }
+      })
+      console.log(res.data)
+      setAmenity(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const getReviews = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/rating`, {
+        params: { amenityId: id },
+        headers: {
+          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+        }
+      })
+      console.log(res.data)
+      setReviews(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  const addReview = async () => {
+    try {
+      const reviewData = {
+        ...newReview,
+        amenityId: id
+      }
+      await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/rating`, reviewData, {
+        headers: {
+          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+        }
+      })
+      getReviews()
+      setNewReview({
+        rating: 0,
+        cleanliness: 0,
+        maintenance: 0,
+        staff: 0,
+        equipment: 0,
+        review: "",
+        photos: []
+      })
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  useEffect(() => {
+    getAmenityById()
+    getReviews()
+  }, [id])
 
   const handleBooking = () => {
     console.log("Booking:", { 
@@ -120,6 +152,10 @@ export default function AmenityDetails() {
     </div>
   )
 
+  if (!amenity) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">{amenity.name}</h1>
@@ -167,14 +203,26 @@ export default function AmenityDetails() {
               </ul>
               <Separator className="my-4" />
               <h3 className="text-xl font-semibold mb-2">Timings</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {amenity.timings.map((timing, index) => (
-                  <div key={index} className="flex justify-between">
-                    <span className="capitalize">{timing.day}</span>
-                    <span>{timing.openTime} - {timing.closeTime}</span>
-                  </div>
-                ))}
-              </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Day</TableHead>
+                    <TableHead>Open Time</TableHead>
+                    <TableHead>Close Time</TableHead>
+                    <TableHead>Maintenance Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {amenity.timings.map((timing, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="capitalize">{timing.day}</TableCell>
+                      <TableCell>{timing.openTime}</TableCell>
+                      <TableCell>{timing.closeTime}</TableCell>
+                      <TableCell>{timing.maintenanceTime || 'N/A'}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
           <Card className="mt-8">
@@ -182,19 +230,112 @@ export default function AmenityDetails() {
               <CardTitle>Reviews</CardTitle>
             </CardHeader>
             <CardContent>
-              {ratings.map((rating) => (
-                <div key={rating.id} className="mb-4">
+              {reviews.map((review) => (
+                <div key={review._id} className="mb-4">
                   <div className="flex items-center mb-2">
                     <Star className="h-5 w-5 text-yellow-400 mr-1" />
-                    <span className="font-semibold">{rating.rating}</span>
+                    <span className="font-semibold">{review.rating}</span>
                     <span className="text-gray-500 text-sm ml-2">
-                      {format(rating.createdAt, 'MMM d, yyyy')}
+                      {format(new Date(review.createdAt), 'MMM d, yyyy')}
                     </span>
                   </div>
-                  <p>{rating.review}</p>
+                  <p>{review.review}</p>
+                  <div className="mt-2 text-sm text-gray-500">
+                    <span className="mr-2">Cleanliness: {review.cleanliness}/5</span>
+                    <span className="mr-2">Maintenance: {review.maintenance}/5</span>
+                    <span className="mr-2">Staff: {review.staff}/5</span>
+                    <span>Equipment: {review.equipment}/5</span>
+                  </div>
                 </div>
               ))}
             </CardContent>
+            <CardFooter>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Add Review</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add a Review</DialogTitle>
+                    <DialogDescription>Share your experience with this amenity.</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="rating" className="text-right">Rating</Label>
+                      <Input
+                        id="rating"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.rating}
+                        onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cleanliness" className="text-right">Cleanliness</Label>
+                      <Input
+                        id="cleanliness"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.cleanliness}
+                        onChange={(e) => setNewReview({...newReview, cleanliness: parseInt(e.target.value)})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="maintenance" className="text-right">Maintenance</Label>
+                      <Input
+                        id="maintenance"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.maintenance}
+                        onChange={(e) => setNewReview({...newReview, maintenance: parseInt(e.target.value)})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="staff" className="text-right">Staff</Label>
+                      <Input
+                        id="staff"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.staff}
+                        onChange={(e) => setNewReview({...newReview, staff: parseInt(e.target.value)})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="equipment" className="text-right">Equipment</Label>
+                      <Input
+                        id="equipment"
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={newReview.equipment}
+                        onChange={(e) => setNewReview({...newReview, equipment: parseInt(e.target.value)})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="review" className="text-right">Review</Label>
+                      <Textarea
+                        id="review"
+                        value={newReview.review}
+                        onChange={(e) => setNewReview({...newReview, review: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={addReview}>Submit Review</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </CardFooter>
           </Card>
         </div>
         <div>

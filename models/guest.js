@@ -12,7 +12,7 @@ const guestSchema = new Schema({
     exit: { type: Date }
   },
   date: { type: Date, required: true },
-  qrCode: { type: String, required: true },
+  qrCode: { type: String },
   status: { 
     type: String, 
     enum: ['pending', 'approved', 'checked-in', 'checked-out'],

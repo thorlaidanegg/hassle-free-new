@@ -1,117 +1,119 @@
 import connectMongo from "@/lib/db";
 import amenity from "@/models/amenity";
 import { verify } from "jsonwebtoken";
+import { NextResponse } from "next/server";
 
-export async function GET(req, res) {
+// GET handler
+export async function GET(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
     const user = verify(token, process.env.ACCESS_TOKEN_SECRET_USER);
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const amenities = await amenity.find();
-    res.status(200).json(amenities);
+    return NextResponse.json(amenities, { status: 200 });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function POST(req, res) {
+// POST handler
+export async function POST(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
     const admin = verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
     if (!admin) {
-      return res.status(403).json({ error: "Forbidden: Admin access required" });
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { name, type, description, photos, capacity, timings, rules, status, maintenanceSchedule, pricing, location, amenityManager } = await req.json();
+    const body = await req.json();
 
-    const newAmenity = new amenity({
-      name,
-      type,
-      description,
-      photos,
-      capacity,
-      timings,
-      rules,
-      status,
-      maintenanceSchedule,
-      pricing,
-      location,
-      amenityManager,
-    });
-
+    const newAmenity = new amenity(body);
     await newAmenity.save();
-    res.status(201).json(newAmenity);
+
+    return NextResponse.json(newAmenity, { status: 201 });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function PUT(req, res) {
+// PUT handler
+export async function PUT(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
     const admin = verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
     if (!admin) {
-      return res.status(403).json({ error: "Forbidden: Admin access required" });
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { id } = req.query;
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
     const updatedData = await req.json();
 
     const updatedAmenity = await amenity.findByIdAndUpdate(id, updatedData, { new: true });
     if (!updatedAmenity) {
-      return res.status(404).json({ error: "Amenity not found" });
+      return NextResponse.json({ error: "Amenity not found" }, { status: 404 });
     }
 
-    res.status(200).json(updatedAmenity);
+    return NextResponse.json(updatedAmenity, { status: 200 });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(req, res) {
+// DELETE handler
+export async function DELETE(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1];
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
     const admin = verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
     if (!admin) {
-      return res.status(403).json({ error: "Forbidden: Admin access required" });
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { id } = req.query;
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
 
     const deletedAmenity = await amenity.findByIdAndDelete(id);
     if (!deletedAmenity) {
-      return res.status(404).json({ error: "Amenity not found" });
+      return NextResponse.json({ error: "Amenity not found" }, { status: 404 });
     }
 
-    res.status(200).json({ message: "Amenity deleted successfully" });
+    return NextResponse.json({ message: "Amenity deleted successfully" }, { status: 200 });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

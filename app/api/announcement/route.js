@@ -1,44 +1,47 @@
 import connectMongo from "@/lib/db";
 import announcement from "@/models/announcement";
 import { verify } from "jsonwebtoken";
+import { NextResponse } from 'next/server';
 
-export async function GET(req, res) {
+
+export async function GET(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1]; // Extract bearer token
+    const token = req.headers.get('authorization')?.split(' ')[1]; // Extract bearer token
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
     const user = verify(token, process.env.ACCESS_TOKEN_SECRET_USER);
     if (!user) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const announcements = await announcement.find();
-    res.status(200).json(announcements);
+    return NextResponse.json({ announcements }, { status: 200 }); // Return the response
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 }); // Ensure this is returned
   }
 }
 
 
-export async function POST(req, res) {
+export async function POST(req) {
   try {
     await connectMongo();
 
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.headers.get('authorization')?.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized: No token provided" });
+      return NextResponse.json({ error: 'Unauthorized: No token provided' }, { status: 401 });
     }
 
     const admin = verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
-    if (!admin) { // Ensure user is an admin
-      return res.status(403).json({ error: "Forbidden: Admin access required" });
+    if (!admin) {
+      return NextResponse.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { title, description, priority, attachments, notifyUsers, audience, targetedUsers } = await req.body;
+    const body = await req.json();
+    const { title, description, priority, attachments, notifyUsers, audience, targetedUsers } = body;
 
     const newAnnouncement = new announcement({
       title,
@@ -47,12 +50,15 @@ export async function POST(req, res) {
       attachments,
       notifyUsers,
       audience,
-      targetedUsers
+      targetedUsers,
     });
 
     await newAnnouncement.save();
-    res.status(201).json({ message: "Announcement created successfully", announcement: newAnnouncement });
+    return NextResponse.json(
+      { message: 'Announcement created successfully', announcement: newAnnouncement },
+      { status: 201 }
+    );
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

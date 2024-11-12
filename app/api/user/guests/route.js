@@ -7,9 +7,9 @@ export async function POST(req) {
   try {
     await connectMongo();
 
-    const { name, numberOfPeople, date, carNo, purpose, validUntil } = await req.json();
+    const { name, noOfPeople, date, carNo, purpose, validUntil } = await req.json();
 
-    if (!name || !numberOfPeople || !date || !purpose || !validUntil) {
+    if (!name || !noOfPeople || !date || !purpose || !validUntil) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400 }
@@ -37,14 +37,14 @@ export async function POST(req) {
     const newGuest = new guest({
       guestId: `guest-${Date.now()}`, // Unique guest ID
       name,
-      noOfPeople: numberOfPeople,
+      noOfPeople,
       date,
       carNo,
       purpose,
       userId: decoded.id,
       status: "pending",
-      qrCode: "qr-code-placeholder", // Add real QR code generation if needed
-      validUntil
+      validUntil,
+      qrCode :"sample"
     });
 
     await newGuest.save();
@@ -87,7 +87,7 @@ export async function GET(req) {
       );
     }
 
-    const guests = await Guest.find({ userId: decoded.id }).sort({ createdAt: -1 });
+    const guests = await guest.find({ userId: decoded.id }).sort({ createdAt: -1 });
 
     return new Response(
       JSON.stringify({

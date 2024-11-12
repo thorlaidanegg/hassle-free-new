@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -7,30 +7,46 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Car, Mail, Home, User, Calendar, Verified, Edit } from "lucide-react"
 import { useRouter } from "next/navigation"
-
-// Mock user data - replace with actual data in production
-const userData = {
-  name: "John Doe",
-  email: "john.doe@example.com",
-  age: 30,
-  houseNo: "42",
-  flatNo: "B",
-  photo: {
-    url: "https://i.pravatar.cc/300",
-    isVerified: true
-  },
-  noOfCars: 2,
-  carNumbers: ["ABC123", "XYZ789"],
-  createdAt: new Date("2023-01-01")
-}
+import Cookies from "js-cookie"
+import axios from "axios"
 
 export default function UserInfoView() {
-  const [user, setUser] = useState(userData)
+  const [user, setUser] = useState(null) // Initialize with null to check loading state.
   const router = useRouter();
 
+  const getUserData = async () => {
+    try {
+      const token = Cookies.get('UserAccessToken') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQwMjc0NywiZXhwIjoxNzMyMDA3NTQ3fQ.trpvlasgRBvHOLJm2uhiwcNmLKThSva4OlH7ABU3_LM";
+      if (!token) {
+        throw new Error("Unauthorized: No token found");
+      }
+
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status !== 200) {
+        throw new Error(res.statusText);
+      }
+
+      setUser(res.data); // Save user data.
+    } catch (error) {
+      console.error("Failed to fetch user data:", error.response?.data?.error || error.message);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   const handleEdit = () => {
-    // Implement edit functionality here
     router.push('/user/dashboard/user-info/edit-details')
+  }
+
+  if (!user) {
+    return <p className="text-center mt-6">Loading user information...</p>;
   }
 
   return (
@@ -41,10 +57,12 @@ export default function UserInfoView() {
       <CardContent className="space-y-6">
         <div className="flex flex-col items-center space-y-4">
           <Avatar className="w-32 h-32">
-            <AvatarImage src={user.photo?.url} alt={user.name} />
-            <AvatarFallback>{user.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+            <AvatarImage src={user.photo?.url} alt={user.name || "User"} />
+            <AvatarFallback>
+              {user.name?.split(" ").map(n => n[0]).join("") || "NA"}
+            </AvatarFallback>
           </Avatar>
-          <h2 className="text-2xl font-bold">{user.name}</h2>
+          <h2 className="text-2xl font-bold">{user.name || "Unknown User"}</h2>
           {user.photo?.isVerified && (
             <Badge variant="secondary" className="flex items-center">
               <Verified className="w-4 h-4 mr-1" />
@@ -56,14 +74,18 @@ export default function UserInfoView() {
         <Separator />
 
         <div className="space-y-4">
-          <InfoItem icon={Mail} label="Email" value={user.email} />
+          <InfoItem icon={Mail} label="Email" value={user.email || "Not provided"} />
           <InfoItem icon={User} label="Age" value={user.age?.toString() || "Not provided"} />
-          <InfoItem icon={Home} label="Address" value={`House ${user.houseNo}, Flat ${user.flatNo}`} />
-          <InfoItem icon={Car} label="Number of Cars" value={user.noOfCars.toString()} />
+          <InfoItem icon={Home} label="Address" value={`House ${user.houseNo || "NA"}, Flat ${user.flatNo || "NA"}`} />
+          <InfoItem icon={Car} label="Number of Cars" value={user.noOfCars?.toString() || "0"} />
           <InfoItem
             icon={Calendar}
             label="Member Since"
-            value={user.createdAt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            value={new Date(user.createdAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            }) || "Unknown"}
           />
         </div>
 
@@ -72,11 +94,14 @@ export default function UserInfoView() {
         <div>
           <h3 className="text-lg font-semibold mb-2">Car Numbers</h3>
           <div className="flex flex-wrap gap-2">
-            {user.carNumbers.map((carNumber, index) => (
-              <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700">
-                {carNumber}
-              </Badge>
-            ))}
+            {user.carNumbers?.length > 0
+              ? user.carNumbers.map((carNumber, index) => (
+                <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700">
+                  {carNumber}
+                </Badge>
+              ))
+              : <p>No cars registered.</p>
+            }
           </div>
         </div>
 
