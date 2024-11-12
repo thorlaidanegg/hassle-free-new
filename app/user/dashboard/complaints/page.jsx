@@ -120,7 +120,7 @@ export default function ComplaintsPage() {
             <DialogHeader>
               <DialogTitle>File a New Complaint</DialogTitle>
               <DialogDescription>
-                Please provide details about your complaint. We'll address it as soon as possible.
+                We&apos;ll address it as soon as possible.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleNewComplaintSubmit}>
