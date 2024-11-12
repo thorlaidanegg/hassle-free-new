@@ -36,8 +36,7 @@ export default function GuestList() {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/guests`,
         {
           headers: {
-            // 'Authorization': `Bearer ${Cookies.get('UserAccessToken')}`
-            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQ0NDczMCwiZXhwIjoxNzMyMDQ5NTMwfQ.APWTKytDvxBNz-L8kGe6Vykj6A-mp_AKEaf6_sh7mP4`
+            'Authorization': `Bearer ${Cookies.get('UserAccessToken')}`
           }
         }
       );

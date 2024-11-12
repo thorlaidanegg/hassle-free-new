@@ -38,7 +38,7 @@ export default function UserEditForm() {
 
   const getUserData = async () => {
     try {
-      const token = Cookies.get('UserAccessToken') || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQwMjc0NywiZXhwIjoxNzMyMDA3NTQ3fQ.trpvlasgRBvHOLJm2uhiwcNmLKThSva4OlH7ABU3_LM";
+      const token = Cookies.get('UserAccessToken')
       if (!token) {
         throw new Error("Unauthorized: No token found");
       }
@@ -97,8 +97,7 @@ export default function UserEditForm() {
     try {
       const res = await axios.put(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, changedData, {
         headers: {
-          // Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MzMxYTg3NmU2NTc0MDVjNzBjNDk2NSIsImlhdCI6MTczMTQwMjc0NywiZXhwIjoxNzMyMDA3NTQ3fQ.trpvlasgRBvHOLJm2uhiwcNmLKThSva4OlH7ABU3_LM`
+          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
         }
       })
       console.log(res.data)
