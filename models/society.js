@@ -12,6 +12,7 @@ const societySchema = new Schema(
     },
     pincode: { type: String, required: true },
     adminId: { type: Schema.Types.ObjectId, ref: 'Admin', required: true }, // Reference to Admin
+    photo: { type: String }
   },
   { timestamps: true }
 );

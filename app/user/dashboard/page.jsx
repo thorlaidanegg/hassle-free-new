@@ -111,8 +111,8 @@ function ErrorState() {
           <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h2 className="text-2xl font-semibold mb-2 dark:text-white">Oops! Something went wrong</h2>
-          <p className="text-gray-600 dark:text-gray-300">We couldn't fetch the society details. Please try again later.</p>
+          <h2 className="text-2xl font-semibold mb-2 dark:text-white">Oops Something went wrong</h2>
+          <p className="text-gray-600 dark:text-gray-300">We cant fetch the society details. Please try again later.</p>
         </CardContent>
       </Card>
     </div>
