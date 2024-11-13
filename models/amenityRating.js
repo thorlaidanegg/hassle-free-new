@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const amenityRatingSchema = new Schema({
   amenityId: { type: Schema.Types.ObjectId, ref: 'Amenity', required: true },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Reference to society
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society'}, // Reference to society
   bookingId: { type: Schema.Types.ObjectId, ref: 'Booking' },
   rating: { type: Number, required: true, min: 1, max: 5 },
   cleanliness: { type: Number, min: 1, max: 5 },

@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
+
 const guestSchema = new Schema({
   guestId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
