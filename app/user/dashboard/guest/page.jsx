@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import Cookies from "js-cookie"
 
 const statusColors = {
   pending: "bg-yellow-100 text-yellow-800",
