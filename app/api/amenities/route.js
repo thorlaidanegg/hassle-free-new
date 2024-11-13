@@ -11,6 +11,9 @@ export async function GET(req) {
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.split(" ")[1];
 
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
     if (!token) {
       return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
@@ -20,7 +23,7 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const amenities = await amenity.find();
+    const amenities = await amenity.find({societyId: societyId});
     return NextResponse.json(amenities, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -44,9 +47,17 @@ export async function POST(req) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
     const body = await req.json();
 
-    const newAmenity = new amenity(body);
+    const newAmenity = new amenity(
+      {
+        ...body,
+        societyId
+      }
+    );
     await newAmenity.save();
 
     return NextResponse.json(newAmenity, { status: 201 });

@@ -27,6 +27,8 @@ export default function AddGuestPage() {
   })
   const router = useRouter()
   const { toast } = useToast()
+  const socId = Cookies.get('SocietyId')
+  const accessToken = Cookies.get('UserAccessToken')
 
   const addGuest = async () => {
     try {
@@ -40,9 +42,9 @@ export default function AddGuestPage() {
         validUntil: validUntil.toISOString()
       }
 
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/guests`, guestData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/guests?societyId=${socId}`, guestData, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       

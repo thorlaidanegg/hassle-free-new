@@ -7,7 +7,7 @@ export async function POST(req) {
   try {
     await connectMongo();
 
-    const { name, noOfPeople, date, carNo, purpose, validUntil } = await req.json();
+    const { name, noOfPeople, date, carNo, purpose, validUntil} = await req.json();
 
     if (!name || !noOfPeople || !date || !purpose || !validUntil) {
       return new Response(
@@ -34,6 +34,13 @@ export async function POST(req) {
       );
     }
 
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
+    if (!societyId) {
+      return NextResponse.json({ error: "Society ID not provided" }, { status: 400 });
+    }
+
     const newGuest = new guest({
       guestId: `guest-${Date.now()}`, // Unique guest ID
       name,
@@ -44,7 +51,8 @@ export async function POST(req) {
       userId: decoded.id,
       status: "pending",
       validUntil,
-      qrCode :"sample"
+      qrCode :"sample",
+      societyId
     });
 
     await newGuest.save();

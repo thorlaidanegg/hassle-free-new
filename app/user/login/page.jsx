@@ -22,10 +22,11 @@ export default function LoginPage() {
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/login`, { email, password })
 
-      const { accessToken } = response.data
+      const { accessToken , societyId } = response.data
 
       // Store access token in cookies
       Cookies.set('UserAccessToken', accessToken, { expires: 7, secure: true })
+      Cookies.set('SocietyId', societyId, { expires: 7, secure: true })
 
       // Redirect to dashboard
       router.push('/user/dashboard')

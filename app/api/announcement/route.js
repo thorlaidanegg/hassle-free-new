@@ -18,7 +18,14 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const announcements = await announcement.find();
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
+    if (!societyId) {
+      return NextResponse.json({ error: "Society ID not provided" }, { status: 400 });
+    }
+
+    const announcements = await announcement.find({societyId: societyId});
     return NextResponse.json({ announcements }, { status: 200 }); // Return the response
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 }); // Ensure this is returned
@@ -41,7 +48,7 @@ export async function POST(req) {
     }
 
     const body = await req.json();
-    const { title, description, priority, attachments, notifyUsers, audience, targetedUsers } = body;
+    const { title, description, priority, attachments, notifyUsers, audience, targetedUsers ,societyId } = body;
 
     const newAnnouncement = new announcement({
       title,
@@ -51,6 +58,7 @@ export async function POST(req) {
       notifyUsers,
       audience,
       targetedUsers,
+      societyId
     });
 
     await newAnnouncement.save();

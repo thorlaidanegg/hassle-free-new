@@ -14,14 +14,16 @@ import Cookies from 'js-cookie'
 export default function AmenitiesPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [amenities , setAmenities] = useState()
+  const socId = Cookies.get('SocietyId')
+  const accessToken = Cookies.get('UserAccessToken')
 
 
   const fetchAmenities = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities`,
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities?societyId=${socId}`,
       {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       setAmenities(res.data)

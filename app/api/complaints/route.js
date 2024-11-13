@@ -18,7 +18,14 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const complaints = await complaint.find();
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
+    if (!societyId) {
+      return NextResponse.json({ error: "Society ID not provided" }, { status: 400 });
+    }
+
+    const complaints = await complaint.find({societyId});
     return NextResponse.json(complaints, { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -39,6 +46,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const url = new URL(req.url);
+    const societyId = url.searchParams.get("societyId");
+
+    if (!societyId) {
+      return NextResponse.json({ error: "Society ID not provided" }, { status: 400 });
+    }
+
     const { title, description, category, location, priority, photos, status ,subCategory,estimatedCost} = await req.json();
 
     const newComplaint = new complaint({
@@ -52,6 +66,7 @@ export async function POST(req) {
       subCategory,
       estimatedCost,
       userId: user.id, // Set userId from the token
+      societyId:societyId
     });
 
     await newComplaint.save();

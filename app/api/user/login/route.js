@@ -21,7 +21,7 @@ export async function POST(req) {
     if (!foundUser || !(await bcrypt.compare(password, foundUser.password))) {
       return new Response(
         JSON.stringify({ message: "Incorrect email or password" }),
-        { status: 400 }
+        { status: 401 } // Use 401 for unauthorized
       );
     }
 
@@ -31,13 +31,24 @@ export async function POST(req) {
       { expiresIn: "7d" }
     );
 
-    return new Response(
-      JSON.stringify({ accessToken, status: "success" }),
+    const response = new Response(
+      JSON.stringify({
+        message: "Login successful",
+        accessToken,
+        status: "success",
+        societyId: foundUser.societyId, // Returning societyId if required in client
+      }),
       { status: 200 }
     );
+    return response;
   } catch (err) {
+    console.error("Error during login:", err);
+
     return new Response(
-      JSON.stringify({ message: "Something went wrong", status: "error" }),
+      JSON.stringify({
+        message: "Internal server error",
+        status: "error",
+      }),
       { status: 500 }
     );
   }

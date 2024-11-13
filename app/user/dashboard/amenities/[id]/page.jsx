@@ -37,12 +37,13 @@ export default function AmenityDetails() {
 
   const pathname = usePathname()
   const id = pathname.split("/")[4]
+  const accessToken = Cookies.get('UserAccessToken')
 
   const getAmenityById = async () => {
     try {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/${id}`, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       console.log(res.data)
@@ -57,7 +58,7 @@ export default function AmenityDetails() {
       const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/rating`, {
         params: { amenityId: id },
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       console.log(res.data)
@@ -75,7 +76,7 @@ export default function AmenityDetails() {
       }
       await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/amenities/rating`, reviewData, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       getReviews()

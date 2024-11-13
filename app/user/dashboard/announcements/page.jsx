@@ -12,50 +12,6 @@ import axios from "axios"
 import Cookies from "js-cookie"
 import announcement from "@/models/announcement"
 
-// Mock data for demonstration
-// const mockAnnouncements = [
-//   {
-//     _id: "1",
-//     title: "System Maintenance",
-//     description: "Our systems will be undergoing maintenance on Saturday night. Please save your work.",
-//     priority: "high",
-//     attachments: ["maintenance_schedule.pdf"],
-//     notifyUsers: true,
-//     audience: "all",
-//     createdAt: new Date("2023-06-15T10:00:00"),
-//   },
-//   {
-//     _id: "2",
-//     title: "New Feature Release",
-//     description: "We're excited to announce the release of our new messaging feature!",
-//     priority: "medium",
-//     attachments: [],
-//     notifyUsers: true,
-//     audience: "all",
-//     createdAt: new Date("2023-06-14T14:30:00"),
-//   },
-//   {
-//     _id: "3",
-//     title: "Office Closure",
-//     description: "The office will be closed on Monday for a public holiday.",
-//     priority: "low",
-//     attachments: ["holiday_schedule.pdf"],
-//     notifyUsers: false,
-//     audience: "specific_blocks",
-//     createdAt: new Date("2023-06-13T09:15:00"),
-//   },
-//   {
-//     _id: "4",
-//     title: "Emergency Evacuation Drill",
-//     description: "An emergency evacuation drill will be conducted next week. Please review the procedures.",
-//     priority: "urgent",
-//     attachments: ["evacuation_procedures.pdf"],
-//     notifyUsers: true,
-//     audience: "all",
-//     createdAt: new Date("2023-06-12T16:45:00"),
-//   },
-// ]
-
 const priorityConfig = {
   low: { icon: Info, color: "bg-blue-500" },
   medium: { icon: Bell, color: "bg-yellow-500" },
@@ -65,15 +21,17 @@ const priorityConfig = {
 
 export default function AnnouncementViewer() {
   const [announcements, setAnnouncements] = useState()
+  const socId = Cookies.get('SocietyId')
+  const accessToken = Cookies.get('UserAccessToken')
 
   const getAnnouncements = async () => {
 
     try{
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/announcement`,
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/announcement?societyId=${socId}`,
         { 
           headers: {
-            Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+            Authorization: `Bearer ${accessToken}`
           }
         }
       ); 

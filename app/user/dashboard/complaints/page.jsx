@@ -45,12 +45,15 @@ export default function ComplaintsPage() {
   })
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('all') // Added state for active tab
+  const socId = Cookies.get('SocietyId')
+  const accessToken = Cookies.get('UserAccessToken')
 
   const getComplaints = async () => {
+
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/complaints`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/complaints?societyId=${socId}`, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       setComplaints(res.data)
@@ -63,7 +66,7 @@ export default function ComplaintsPage() {
     try {
       const res = await axios.put(`${process.env.NEXT_PUBLIC_SITE_URL}/api/complaints?id=${complaintId}`, updateData, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       console.log(res.data)
@@ -92,9 +95,9 @@ export default function ComplaintsPage() {
 
   const fileComplaint = async () => {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/complaints`, newComplaint, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/complaints?societyId=${socId}`, newComplaint, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${accessToken}`
         }
       })
       // Add the new complaint to the list

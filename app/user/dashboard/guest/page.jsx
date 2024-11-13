@@ -30,6 +30,7 @@ export default function GuestList() {
   const [guests, setGuests] = useState()
   const [loading ,setLoading] = useState(true)
   const router = useRouter()
+  const accessToken = Cookies.get('UserAccessToken')
 
 
   const fetchGuests = async () => {
@@ -37,7 +38,7 @@ export default function GuestList() {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/guests`,
         {
           headers: {
-            'Authorization': `Bearer ${Cookies.get('UserAccessToken')}`
+            'Authorization': `Bearer ${accessToken}`
           }
         }
       );
