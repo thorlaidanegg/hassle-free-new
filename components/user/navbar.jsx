@@ -1,10 +1,12 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Bell, ChevronDown, Menu } from 'lucide-react'
+import { Bell, Menu } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sidebar } from "./sidebar"
-
+import { DarkModeToggle } from "../darkModeToggle"
 
 export function Navbar({ onOpenSidebar }) {
   return (
@@ -23,6 +25,7 @@ export function Navbar({ onOpenSidebar }) {
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white ml-2">Dashboard</h2>
       </div>
       <div className="flex items-center space-x-4">
+        <DarkModeToggle />
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
         </Button>

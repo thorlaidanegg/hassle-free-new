@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,9 +9,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Building2, Users, Bell, FileText, QrCode, MessageSquare, Calendar, Camera, ClipboardList, UserPlus, UserMinus, Car, Briefcase, Users as UsersIcon, Shield, Settings, CreditCard, ChartBar, Map, Phone, Lock, Zap, Smile, CheckCircle, Star, ArrowRight } from 'lucide-react'
+import Cookies from 'js-cookie'
 
 export default function LandingPage() {
   const [activeTab, setActiveTab] = useState('admin')
+  const [hasUserToken, setHasUserToken] = useState(false)
+  const [hasAdminToken, setHasAdminToken] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const userToken = Cookies.get('UserAccessToken')
+    const adminToken = Cookies.get('AdminAccessToken')
+    setHasUserToken(!!userToken)
+    setHasAdminToken(!!adminToken)
+  }, [])
+
+  const handleGetStarted = () => {
+    if (hasUserToken) {
+      router.push('/user/dashboard')
+    } else {
+      router.push('/user/login')
+    }
+  }
+
+  const handleAdminDashboard = () => {
+    if (hasAdminToken) {
+      router.push('/admin/dashboard')
+    } else {
+      router.push('/admin/login')
+    }
+  }
+
+  const handleUserDashboard = () => {
+    if (hasUserToken) {
+      router.push('/user/dashboard')
+    } else {
+      router.push('/user/login')
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -23,9 +59,7 @@ export default function LandingPage() {
             <Link href="#testimonials" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-foreground">Testimonials</Link>
             <Link href="#pricing" className="text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary-foreground">Pricing</Link>
           </nav>
-          <Link href="/user/login" >
-            <Button>Get Started</Button>
-          </Link>
+          <Button onClick={handleGetStarted}>Get Started</Button>
         </div>
       </header>
 
@@ -39,11 +73,11 @@ export default function LandingPage() {
               HassleFree revolutionizes residential society management with powerful tools for admins and residents alike.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Button size="lg" className="text-lg py-6 px-8">
-                Start Your Free Trial
+              <Button size="lg" className="text-lg py-6 px-8" onClick={handleAdminDashboard}>
+                Go to Admin Dashboard
               </Button>
-              <Button size="lg" variant="outline" className="text-lg py-6 px-8">
-                Watch Demo Video
+              <Button size="lg" variant="outline" className="text-lg py-6 px-8" onClick={handleUserDashboard}>
+                Go to User Dashboard
               </Button>
             </div>
           </div>
