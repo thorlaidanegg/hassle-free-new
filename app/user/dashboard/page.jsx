@@ -1,131 +1,120 @@
 'use client'
 
-import { useState } from 'react'
-import { Sidebar } from "@/components/user/sidebar"
-import { Navbar } from "@/components/user/navbar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { Calendar, MapPin } from 'lucide-react'
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Briefcase, Calendar, MessageSquare } from 'lucide-react'
+import { Skeleton } from "@/components/ui/skeleton"
+import Cookies from 'js-cookie'
 
-// Mock data for announcements
-const announcements = [
-  {
-    id: 1,
-    title: "Community Picnic Next Weekend",
-    description: "Join us for a fun-filled community picnic at Central Park. Bring your favorite dishes!",
-    priority: "medium",
-    createdAt: "2023-06-15T10:00:00Z"
-  },
-  {
-    id: 2,
-    title: "Urgent: Water Outage Notice",
-    description: "There will be a planned water outage on Monday from 10 AM to 2 PM due to maintenance work.",
-    priority: "urgent",
-    createdAt: "2023-06-16T14:30:00Z"
-  },
-  {
-    id: 3,
-    title: "New Gym Equipment Arrived",
-    description: "We've added new treadmills and weight machines to our community gym. Come check them out!",
-    priority: "low",
-    createdAt: "2023-06-17T09:15:00Z"
+
+export default function SocietyPage() {
+  const [societyDetails, setSocietyDetails] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const socId = Cookies.get('SocietyId')
+  const accessToken = Cookies.get('UserAccessToken')
+
+  useEffect(() => {
+    const getSocietyDetails = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/society?societyId=${socId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        setSocietyDetails(res.data)
+        setLoading(false)
+      } catch (error) {
+        console.error(error)
+        setError('Failed to fetch society details')
+        setLoading(false)
+      }
+    }
+
+    getSocietyDetails()
+  }, [])
+
+  if (loading) {
+    return <LoadingSkeleton />
   }
-]
 
-export default function UserDashboard() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
-  const priorityColors = {
-    low: "bg-blue-500",
-    medium: "bg-yellow-500",
-    high: "bg-orange-500",
-    urgent: "bg-red-500"
+  if (!societyDetails) {
+    return <ErrorState />
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-        <main className="flex-1 overflow-y-auto p-4 bg-gray-100 dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto">
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>Welcome back, John!</CardTitle>
-                <CardDescription>Here&apos;s what&apos;s happening in your community</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <Card className="bg">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Residents</CardTitle>
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">245</div>
-                      <p className="text-xs text-muted-foreground">+5 this month</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Active Amenities</CardTitle>
-                      <Briefcase className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">8</div>
-                      <p className="text-xs text-muted-foreground">2 under maintenance</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">3</div>
-                      <p className="text-xs text-muted-foreground">Next: Community Picnic</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Open Complaints</CardTitle>
-                      <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">5</div>
-                      <p className="text-xs text-muted-foreground">2 resolved this week</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Announcements</CardTitle>
-                <CardDescription>Stay updated with the latest community news</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px] pr-4">
-                  {announcements.map((announcement) => (
-                    <div key={announcement.id} className="mb-4 last:mb-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold">{announcement.title}</h3>
-                        <Badge className={priorityColors[announcement.priority]}>
-                          {announcement.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{announcement.description}</p>
-                      <p className="text-xs text-gray-400">
-                        {/* Posted on: {new Date(announcement.createdAt).toLocaleDateString()} */}
-                      </p>
-                      <Separator className="my-4" />
-                    </div>
-                  ))}
-                </ScrollArea>
-              </CardContent>
-            </Card>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
+      <Card className=" mx-auto overflow-hidden shadow-lg">
+        <div className="relative h-64 sm:h-80 lg:h-96">
+          {societyDetails.photo ? (
+            <img
+              src={societyDetails.photo}
+              alt={societyDetails.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
+              <svg className="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-end">
+            <div className="p-4 sm:p-6 lg:p-8">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">{societyDetails.name}</h1>
+              <Badge variant="secondary" className="text-sm">Residential Society</Badge>
+            </div>
           </div>
-        </main>
+        </div>
+        <CardContent className="p-4 sm:p-6 lg:p-8">
+          <div className="grid gap-4 sm:gap-6">
+            <div className="flex items-center space-x-2 text-sm sm:text-base">
+              <MapPin className="w-5 h-5 text-blue-500" />
+              <span className="dark:text-gray-300">{societyDetails.address}, {societyDetails.pincode}</span>
+            </div>
+            <div className="flex items-center space-x-2 text-sm sm:text-base">
+              <Calendar className="w-5 h-5 text-green-500" />
+              <span className="dark:text-gray-300">Established: {new Date(societyDetails.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-6 lg:p-8">
+      <Card className="mx-auto overflow-hidden shadow-lg">
+        <Skeleton className="h-64 sm:h-80 lg:h-96 w-full" />
+        <CardContent className="p-4 sm:p-6 lg:p-8">
+          <Skeleton className="h-8 w-3/4 mb-4" />
+          <Skeleton className="h-4 w-1/4 mb-4" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-5/6" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function ErrorState() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+      <Card className="max-w-md w-full">
+        <CardContent className="p-6 text-center">
+          <svg className="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 className="text-2xl font-semibold mb-2 dark:text-white">Oops! Something went wrong</h2>
+          <p className="text-gray-600 dark:text-gray-300">We couldn't fetch the society details. Please try again later.</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }
