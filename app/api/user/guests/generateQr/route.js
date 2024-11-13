@@ -7,9 +7,9 @@ export async function POST(req) {
   try {
     await connectMongo();
 
-    const { userId, guestId } = await req.json();
+    const { guestId } = await req.json();
 
-    if (!userId || !guestId) {
+    if (!guestId) {
       return new Response(
         JSON.stringify({ error: "Missing userId or guestId" }),
         { status: 400 }
@@ -35,12 +35,7 @@ export async function POST(req) {
       );
     }
 
-    if (decoded.id !== userId) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized: Invalid user" }),
-        { status: 403 }
-      );
-    }
+    const userId = decoded.id;
 
     const g = await guest.findOne({ _id: guestId, userId });
 
