@@ -1,8 +1,9 @@
-// models/announcement.model.js
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const announcementSchema = new Schema({
+  adminId: { type: Schema.Types.ObjectId, ref: 'Admin', required: true }, // Admin who created it
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Society association
   title: { type: String, required: true },
   description: { type: String, required: true },
   priority: { 
@@ -20,4 +21,4 @@ const announcementSchema = new Schema({
   targetedUsers: [{ type: Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
 
-export default mongoose.models?.Announcement|| mongoose.model('Announcement', announcementSchema);
+export default mongoose.models?.Announcement || mongoose.model('Announcement', announcementSchema);

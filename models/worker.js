@@ -18,7 +18,8 @@ const workerSchema = new Schema({
     url: { type: String },
     faceData: { type: Buffer },
     lastUpdated: { type: Date }
-  }
+  },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // Linking to Society
 }, { timestamps: true });
 
 export default mongoose.models?.Worker || mongoose.model('Worker', workerSchema);

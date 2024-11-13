@@ -42,10 +42,11 @@ const equipmentSchema = new Schema({
     warranty: {
       startDate: { type: Date },
       endDate: { type: Date },
-      document: { type: String } // URL to warranty document
+      document: { type: String }
     },
     cost: { type: Number }
-  }
+  },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // Linking to Society
 }, { timestamps: true });
 
 

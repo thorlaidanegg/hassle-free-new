@@ -17,8 +17,11 @@ const vehicleEntryLogSchema = new Schema({
   capturedImage: { type: String },
   ocrConfidence: { type: Number },
   securityGuardId: { type: Schema.Types.ObjectId, ref: 'Worker' },
-  remarks: { type: String }
+  remarks: { type: String },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // New field
 }, { timestamps: true });
+
+
 
 
 export default mongoose.models?.VehicleEntryLog || mongoose.model('VehicleEntryLog', vehicleEntryLogSchema);

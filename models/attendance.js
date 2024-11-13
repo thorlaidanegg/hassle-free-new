@@ -20,8 +20,11 @@ const attendanceLogSchema = new Schema({
     type: String,
     enum: ['verified', 'failed', 'manual_override'],
     required: true
-  }
+  },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // New field
 }, { timestamps: true });
+
+
 
 
 export default mongoose.models?.AttendanceLog || mongoose.model('AttendanceLog', attendanceLogSchema);

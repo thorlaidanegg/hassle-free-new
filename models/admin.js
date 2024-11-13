@@ -7,15 +7,7 @@ const adminSchema = new Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    society: {
-      name: { type: String, required: true }, // Name of the society
-      address: { type: String, required: true }, // Full address of the society
-      location: { 
-        latitude: { type: Number, required: true }, // Latitude for geo-location
-        longitude: { type: Number, required: true } // Longitude for geo-location
-      },
-      pincode: { type: String, required: true }, // Postal code for the society
-    },
+    societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Reference to Society
   },
   { timestamps: true }
 );

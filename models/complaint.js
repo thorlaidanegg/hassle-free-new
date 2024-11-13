@@ -1,12 +1,12 @@
-// models/complaint.model.js
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const complaintSchema = new Schema({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Link to society
   title: { type: String, required: true },
   description: { type: String, required: true },
   photos: [{ type: String }],
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   category: { 
     type: String, 
     enum: [
@@ -48,6 +48,5 @@ const complaintSchema = new Schema({
     comment: { type: String }
   }
 }, { timestamps: true });
-
 
 export default mongoose.models?.Complaint || mongoose.model('Complaint', complaintSchema);

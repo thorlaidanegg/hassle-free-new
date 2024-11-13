@@ -1,8 +1,8 @@
-// models/amenity.model.js
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const amenitySchema = new Schema({
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Link to society
   name: { type: String, required: true },
   type: {
     type: String,
@@ -49,7 +49,6 @@ const amenitySchema = new Schema({
     date: { type: Date },
     description: { type: String },
     duration: { type: Number } // in hours
-    
   }],
   pricing: {
     isChargeable: { type: Boolean, default: false },
@@ -60,6 +59,5 @@ const amenitySchema = new Schema({
   location: { type: String, required: true },
   amenityManager: { type: Schema.Types.ObjectId, ref: 'Worker' }
 }, { timestamps: true });
-
 
 export default mongoose.models?.Amenity || mongoose.model('Amenity', amenitySchema);

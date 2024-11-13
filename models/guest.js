@@ -1,7 +1,3 @@
-// models/guest.model.js
-import mongoose from 'mongoose';
-const Schema = mongoose.Schema;
-
 const guestSchema = new Schema({
   guestId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
@@ -20,7 +16,9 @@ const guestSchema = new Schema({
   },
   carNo: { type: String },
   purpose: { type: String },
-  validUntil: { type: Date, required: true }
+  validUntil: { type: Date, required: true },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // New field
 }, { timestamps: true });
+
 
 export default mongoose.models?.Guest || mongoose.model('Guest', guestSchema);

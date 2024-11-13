@@ -1,6 +1,6 @@
-// models/unauthorizedEntry.model.js
-import mongoose from 'mongoose';
-const Schema = mongoose.Schema;
+  // models/unauthorizedEntry.model.js
+  import mongoose from 'mongoose';
+  const Schema = mongoose.Schema;
 
 const unauthorizedEntryLogSchema = new Schema({
   entryTime: { type: Date, required: true, default: Date.now },
@@ -22,7 +22,9 @@ const unauthorizedEntryLogSchema = new Schema({
     enum: ['pending_verification', 'allowed', 'denied', 'escalated'],
     default: 'pending_verification'
   },
-  remarks: { type: String }
+  remarks: { type: String },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // New field
 }, { timestamps: true });
 
-export default mongoose.models?.UnauthorizedEntry || mongoose.model('UnauthorizedEntry', unauthorizedEntryLogSchema);
+
+  export default mongoose.models?.UnauthorizedEntry || mongoose.model('UnauthorizedEntry', unauthorizedEntryLogSchema);

@@ -35,7 +35,10 @@ const bookingSchema = new Schema({
   }],
   cancellationReason: { type: String },
   cancelledAt: { type: Date },
-  reminderSent: { type: Boolean, default: false }
+  reminderSent: { type: Boolean, default: false },
+  societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true } // New field
 }, { timestamps: true });
+
+
 
 export default mongoose.models?.Booking || mongoose.model('Booking', bookingSchema);
