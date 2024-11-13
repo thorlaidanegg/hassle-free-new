@@ -20,7 +20,8 @@ export default function LandingPage() {
   useEffect(() => {
     const userToken = Cookies.get('UserAccessToken')
     const adminToken = Cookies.get('AdminAccessToken')
-    setHasUserToken(!!userToken)
+    const storeId = Cookies.get('StoreId') 
+    setHasUserToken(!!userToken && !!storeId)
     setHasAdminToken(!!adminToken)
   }, [])
 
