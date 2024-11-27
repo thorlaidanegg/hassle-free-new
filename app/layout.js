@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Ranak Shah",
-  description: "Made by Ranak",
+  title: "HassleFree",
+  description: "",
 };
 
 export default function RootLayout({ children }) {
