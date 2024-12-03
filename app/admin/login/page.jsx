@@ -22,13 +22,14 @@ export default function AdminLoginPage() {
     e.preventDefault(); // Prevent default form submission
     try{
       const response = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/login`, { email, password })
-      const { accessToken } = response.data
+      const { accessToken,societyId } = response.data
 
       // Store access token in cookies
       Cookies.set('AdminAccessToken', accessToken, { expires: 7, secure: true })
+      Cookies.set('SocietyId', societyId, { expires: 7, secure: true })
 
       // Redirect to dashboard
-      router.push('/dashboard')
+      router.push('/admin/dashboard')
 
     }catch(error){
       console.error(error)

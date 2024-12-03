@@ -20,13 +20,13 @@ export function Sidebar({ isMobile = false, onClose }) {
   }
 
   const menuItems = [
-    { icon: Home, label: 'Dashboard', href: '/user/dashboard' },
-    { icon: Bell, label: 'Announcements', href: '/user/dashboard/announcements' },
-    { icon: UserPlus, label: 'Guests', href: '/user/dashboard/guest' },
-    { icon: Briefcase, label: 'Amenities', href: '/user/dashboard/amenities' },
-    { icon: Users, label: 'User Info', href: '/user/dashboard/user-info' },
-    { icon: MessageSquare, label: 'Complaints', href: '/user/dashboard/complaints' },
-    { icon: Calendar, label: 'Events', href: '/user/dashboard/events' },
+    { icon: Home, label: 'Dashboard', href: '/admin/dashboard' },
+    { icon: Bell, label: 'Announcements', href: '/admin/dashboard/announcements' },
+    { icon: UserPlus, label: 'Users', href: '/admin/dashboard/guest' },
+    { icon: Briefcase, label: 'Amenities', href: '/admin/dashboard/amenities' },
+    { icon: Users, label: 'form', href: '/admin/dashboard/user-info' },
+    { icon: MessageSquare, label: 'Complaints', href: '/admin/dashboard/complaints' },
+    { icon: Calendar, label: 'vehicles', href: '/admin/dashboard/events' },
   ]
 
   return (

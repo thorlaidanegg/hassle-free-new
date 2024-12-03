@@ -29,11 +29,13 @@ export async function POST(req) {
       { id: user._id.toString() },
       process.env.ACCESS_TOKEN_SECRET_ADMIN,
       { expiresIn: "1h" }
-    );
+    )
 
     return new Response(
-      JSON.stringify({ accessToken, status: "success" }),
-      { status: 200 }
+      JSON.stringify({ accessToken, societyId: user.societyId, status: "success" }),
+      { 
+        status: 200
+      }
     );
   } catch (err) {
     return new Response(
