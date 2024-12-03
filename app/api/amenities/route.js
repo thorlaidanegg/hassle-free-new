@@ -18,7 +18,18 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized: No token provided" }, { status: 401 });
     }
 
-    const user = verify(token, process.env.ACCESS_TOKEN_SECRET_USER);
+    let user;
+    try {
+      user = verify(token, process.env.ACCESS_TOKEN_SECRET_USER);
+    } catch (err) {
+      try {
+        user = verify(token, process.env.ACCESS_TOKEN_SECRET_ADMIN);
+      } catch (err) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    }
+
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
