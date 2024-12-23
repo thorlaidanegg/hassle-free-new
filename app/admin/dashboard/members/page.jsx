@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { PlusCircle, UserCheck, UserX } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function UserManagement() {
   const [users, setUsers] = useState([])
@@ -23,6 +24,7 @@ export default function UserManagement() {
   const { toast } = useToast()
   const token = Cookies.get("AdminAccessToken")
   const socId = Cookies.get("SocietyId")
+  const router = useRouter()
 
   useEffect(() => {
     getMembers()
@@ -51,7 +53,7 @@ export default function UserManagement() {
 
   const handleAddUser = () => {
     // Implement add user functionality
-    console.log("Add user clicked")
+    router.push("/admin/dashboard/members/add-member")
   }
 
   return (
