@@ -28,7 +28,7 @@ export async function POST(req) {
     const accessToken = sign(
       { id: user._id.toString() },
       process.env.ACCESS_TOKEN_SECRET_ADMIN,
-      { expiresIn: "1h" }
+      { expiresIn: "5h" }
     )
 
     return new Response(
