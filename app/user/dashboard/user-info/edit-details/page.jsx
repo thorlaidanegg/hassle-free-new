@@ -11,63 +11,80 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useToast } from "@/hooks/use-toast"
 import axios from "axios"
 import Cookies from "js-cookie"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function UserEditForm() {
   const [user, setUser] = useState(null)
   const [originalUser, setOriginalUser] = useState(null)
+  const [vehicles, setVehicles] = useState([])
+  const [newVehicle, setNewVehicle] = useState({ number: "", name: "", type: "" })
+  const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const token = Cookies.get('UserAccessToken')
+  const socId = Cookies.get('SocietyId')
 
   useEffect(() => {
     getUserData()
+    getVehicles()
   }, [])
-
-  useEffect(() => {
-    if (user && user.carNumbers) {
-      const newCarNumbers = [...user.carNumbers]
-      if (newCarNumbers.length < user.noOfCars) {
-        while (newCarNumbers.length < user.noOfCars) {
-          newCarNumbers.push("")
-        }
-      } else if (newCarNumbers.length > user.noOfCars) {
-        newCarNumbers.splice(user.noOfCars)
-      }
-      setUser(prev => ({ ...prev, carNumbers: newCarNumbers }))
-    }
-  }, [user?.noOfCars])
 
   const getUserData = async () => {
     try {
-      const token = Cookies.get('UserAccessToken')
       if (!token) {
-        throw new Error("Unauthorized: No token found");
+        throw new Error("Unauthorized: No token found")
       }
 
       const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (res.status !== 200) {
-        throw new Error(res.statusText);
+        throw new Error(res.statusText)
       }
 
-      setUser(res.data);
-      setOriginalUser(res.data);
+      setUser(res.data)
+      setOriginalUser(res.data)
     } catch (error) {
-      console.error("Failed to fetch user data:", error.response?.data?.error || error.message);
+      console.error("Failed to fetch user data:", error.response?.data?.error || error.message)
       toast({
         title: "Error",
         description: "Failed to fetch user data. Please try again.",
         variant: "destructive",
       })
     }
-  };
+  }
+
+  const getVehicles = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/vehicle?societyId=${socId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      setVehicles(res.data.userVehicle)
+    } catch (e) {
+      console.error(e)
+      toast({
+        title: "Error",
+        description: "Failed to fetch vehicles. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setUser(prev => ({ ...prev, [name]: name === "noOfCars" ? parseInt(value) : value }))
+    setUser(prev => ({ ...prev, [name]: value }))
   }
 
   const handlePhotoChange = (e) => {
@@ -77,10 +94,35 @@ export default function UserEditForm() {
     }))
   }
 
-  const handleCarNumberChange = (index, value) => {
-    const updatedCarNumbers = [...user.carNumbers]
-    updatedCarNumbers[index] = value
-    setUser(prev => ({ ...prev, carNumbers: updatedCarNumbers }))
+  const handleNewVehicleChange = (e) => {
+    const { name, value } = e.target
+    setNewVehicle(prev => ({ ...prev, [name]: value }))
+  }
+
+  const addVehicle = async () => {
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/vehicle?societyId=${socId}`, newVehicle, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      if (res.data.success) {
+        toast({
+          title: "Success",
+          description: "Vehicle added successfully.",
+        })
+        setIsAddVehicleOpen(false)
+        setNewVehicle({ number: "", name: "", type: "" })
+        getVehicles()
+      }
+    } catch (e) {
+      console.error(e)
+      toast({
+        title: "Error",
+        description: "Failed to add vehicle. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const getChangedData = () => {
@@ -97,7 +139,7 @@ export default function UserEditForm() {
     try {
       const res = await axios.put(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, changedData, {
         headers: {
-          Authorization: `Bearer ${Cookies.get('UserAccessToken')}`
+          Authorization: `Bearer ${token}`
         }
       })
       console.log(res.data)
@@ -186,34 +228,57 @@ export default function UserEditForm() {
               <Label htmlFor="flatNo">Flat Number</Label>
               <Input id="flatNo" name="flatNo" value={user.flatNo || ""} onChange={handleChange} required />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="noOfCars">Number of Cars</Label>
-              <Input
-                id="noOfCars"
-                name="noOfCars"
-                type="number"
-                value={user.noOfCars || 0}
-                onChange={handleChange}
-                min="0"
-                required
-              />
-            </div>
           </div>
 
           <Separator />
 
           <div>
-            <Label>Car Numbers</Label>
-            <div className="space-y-2 mt-2">
-              {user.carNumbers?.map((carNumber, index) => (
-                <Input
-                  key={index}
-                  value={carNumber}
-                  onChange={e => handleCarNumberChange(index, e.target.value)}
-                  placeholder={`Car ${index + 1} Number`}
-                />
-              ))}
+            <div className="flex justify-between items-center mb-4">
+              <Label>Vehicles</Label>
+              <Dialog open={isAddVehicleOpen} onOpenChange={setIsAddVehicleOpen}>
+                <DialogTrigger asChild>
+                  <Button>Add Vehicle</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Vehicle</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="number">Vehicle Number</Label>
+                      <Input id="number" name="number" value={newVehicle.number} onChange={handleNewVehicleChange} required />
+                    </div>
+                    <div>
+                      <Label htmlFor="name">Vehicle Name</Label>
+                      <Input id="name" name="name" value={newVehicle.name} onChange={handleNewVehicleChange} required />
+                    </div>
+                    <div>
+                      <Label htmlFor="type">Vehicle Type</Label>
+                      <Input id="type" name="type" value={newVehicle.type} onChange={handleNewVehicleChange} required />
+                    </div>
+                    <Button onClick={addVehicle}>Add Vehicle</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Number</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {vehicles.map((vehicle) => (
+                  <TableRow key={vehicle._id}>
+                    <TableCell>{vehicle.number}</TableCell>
+                    <TableCell>{vehicle.name}</TableCell>
+                    <TableCell>{vehicle.type}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
         <CardFooter>
@@ -223,3 +288,4 @@ export default function UserEditForm() {
     </Card>
   )
 }
+

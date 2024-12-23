@@ -22,11 +22,11 @@ export function Sidebar({ isMobile = false, onClose }) {
   const menuItems = [
     { icon: Home, label: 'Dashboard', href: '/admin/dashboard' },
     { icon: Bell, label: 'Announcements', href: '/admin/dashboard/announcements' },
-    { icon: UserPlus, label: 'Users', href: '/admin/dashboard/guest' },
+    { icon: UserPlus, label: 'Members', href: '/admin/dashboard/members' },
     { icon: Briefcase, label: 'Amenities', href: '/admin/dashboard/amenities' },
     { icon: Users, label: 'form', href: '/admin/dashboard/user-info' },
     { icon: MessageSquare, label: 'Complaints', href: '/admin/dashboard/complaints' },
-    { icon: Calendar, label: 'vehicles', href: '/admin/dashboard/events' },
+    { icon: Calendar, label: 'vehicles', href: '/admin/dashboard/vehicles' },
   ]
 
   return (

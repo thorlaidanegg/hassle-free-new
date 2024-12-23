@@ -16,8 +16,8 @@ const userSchema = new Schema(
       lastUpdated: { type: Date },
       isVerified: { type: Boolean, default: false },
     },
-    noOfCars: { type: Number, default: 0 },
-    carNumbers: [{ type: String }],
+    // noOfCars: { type: Number, default: 0 },
+    // carNumbers: [{ type: String }],
     societyId: { type: Schema.Types.ObjectId, ref: 'Society', required: true }, // Reference to Society
   },
   { timestamps: true }

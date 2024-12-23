@@ -42,7 +42,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
-    const { name, email, password, age, houseNo, flatNo, photo, noOfCars, carNumbers } = await req.json();
+    const { name, email, password, age, houseNo, flatNo, photo } = await req.json();
 
     const newUser = new user({
       name,
@@ -51,9 +51,7 @@ export async function POST(req) {
       age,
       houseNo,
       flatNo,
-      photo,
-      noOfCars,
-      carNumbers,
+      photo
     });
 
     await newUser.save();

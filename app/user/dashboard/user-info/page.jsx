@@ -1,52 +1,82 @@
 'use client'
+
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Car, Mail, Home, User, Calendar, Verified, Edit } from "lucide-react"
+import { Car, Mail, Home, User, Calendar, Verified, Edit } from 'lucide-react'
 import { useRouter } from "next/navigation"
 import Cookies from "js-cookie"
 import axios from "axios"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useToast } from "@/hooks/use-toast"
 
 export default function UserInfoView() {
-  const [user, setUser] = useState(null) // Initialize with null to check loading state.
-  const router = useRouter();
+  const [user, setUser] = useState(null)
+  const [vehicles, setVehicles] = useState([])
+  const router = useRouter()
+  const { toast } = useToast()
+  const token = Cookies.get('UserAccessToken')
+  const socId = Cookies.get('SocietyId')
 
   const getUserData = async () => {
     try {
-      const token = Cookies.get('UserAccessToken');
       if (!token) {
-        throw new Error("Unauthorized: No token found");
+        throw new Error("Unauthorized: No token found")
       }
 
       const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (res.status !== 200) {
-        throw new Error(res.statusText);
+        throw new Error(res.statusText)
       }
 
-      setUser(res.data); // Save user data.
+      setUser(res.data)
     } catch (error) {
-      console.error("Failed to fetch user data:", error.response?.data?.error || error.message);
+      console.error("Failed to fetch user data:", error.response?.data?.error || error.message)
+      toast({
+        title: "Error",
+        description: "Failed to fetch user data. Please try again.",
+        variant: "destructive",
+      })
     }
-  };
+  }
+
+  const getVehicles = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/vehicle?societyId=${socId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      setVehicles(res.data.userVehicle)
+    } catch (error) {
+      console.error("Failed to fetch vehicles:", error.response?.data?.error || error.message)
+      toast({
+        title: "Error",
+        description: "Failed to fetch vehicles. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   useEffect(() => {
-    getUserData();
-  }, []);
+    getUserData()
+    getVehicles()
+  }, [])
 
   const handleEdit = () => {
     router.push('/user/dashboard/user-info/edit-details')
   }
 
   if (!user) {
-    return <p className="text-center mt-6">Loading user information...</p>;
+    return <p className="text-center mt-6">Loading user information...</p>
   }
 
   return (
@@ -77,7 +107,7 @@ export default function UserInfoView() {
           <InfoItem icon={Mail} label="Email" value={user.email || "Not provided"} />
           <InfoItem icon={User} label="Age" value={user.age?.toString() || "Not provided"} />
           <InfoItem icon={Home} label="Address" value={`House ${user.houseNo || "NA"}, Flat ${user.flatNo || "NA"}`} />
-          <InfoItem icon={Car} label="Number of Cars" value={user.noOfCars?.toString() || "0"} />
+          <InfoItem icon={Car} label="Number of Cars" value={vehicles.length.toString()} />
           <InfoItem
             icon={Calendar}
             label="Member Since"
@@ -92,17 +122,29 @@ export default function UserInfoView() {
         <Separator />
 
         <div>
-          <h3 className="text-lg font-semibold mb-2">Car Numbers</h3>
-          <div className="flex flex-wrap gap-2">
-            {user.carNumbers?.length > 0
-              ? user.carNumbers.map((carNumber, index) => (
-                <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700">
-                  {carNumber}
-                </Badge>
-              ))
-              : <p>No cars registered.</p>
-            }
-          </div>
+          <h3 className="text-lg font-semibold mb-2">Vehicles</h3>
+          {vehicles.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Number</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {vehicles.map((vehicle) => (
+                  <TableRow key={vehicle._id}>
+                    <TableCell>{vehicle.number}</TableCell>
+                    <TableCell>{vehicle.name}</TableCell>
+                    <TableCell>{vehicle.type}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <p>No vehicles registered.</p>
+          )}
         </div>
 
         <Button onClick={handleEdit} className="w-full">
@@ -123,3 +165,4 @@ function InfoItem({ icon: Icon, label, value }) {
     </div>
   )
 }
+
